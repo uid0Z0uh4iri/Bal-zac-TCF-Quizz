@@ -30,6 +30,7 @@
         <h2 id="question"></h2>
         <div id="answers"></div>
         <button id="next-btn" class="hidden" onclick="nextQuestion()">Next</button>
+        <p id="question-counter"></p>
     </div>
 
     <div id="results-screen" class="hidden">
@@ -41,56 +42,16 @@
 
     <script>
         const questions = [
-            {
-                question: "Comment allez-vous?",
-                answers: ["Je vais bien", "Au revoir", "Merci", "Bonjour"],
-                correct: 0
-            },
-            {
-                question: "Quelle est la capitale de la France?",
-                answers: ["Lyon", "Marseille", "Paris", "Bordeaux"],
-                correct: 2
-            },
-            {
-                question: "Comment dit-on 'hello' en français?",
-                answers: ["Au revoir", "Bonjour", "Merci", "S'il vous plaît"],
-                correct: 1
-            },
-            {
-                question: "Quelle couleur est le drapeau français?",
-                answers: ["Rouge-Blanc-Bleu", "Bleu-Blanc-Rouge", "Blanc-Bleu-Rouge", "Rouge-Bleu-Blanc"],
-                correct: 1
-            },
-            {
-                question: "Quel est le mot français pour 'cat'?",
-                answers: ["Chien", "Oiseau", "Chat", "Poisson"],
-                correct: 2
-            },
-            {
-                question: "Comment dit-on 'thank you' en français?",
-                answers: ["S'il vous plaît", "Merci", "De rien", "Pardon"],
-                correct: 1
-            },
-            {
-                question: "Quel nombre vient après 'trois'?",
-                answers: ["Cinq", "Deux", "Quatre", "Six"],
-                correct: 2
-            },
-            {
-                question: "Quelle est la couleur 'rouge' en anglais?",
-                answers: ["Blue", "Green", "Yellow", "Red"],
-                correct: 3
-            },
-            {
-                question: "Comment dit-on 'goodbye' en français?",
-                answers: ["Au revoir", "Bonjour", "Bonsoir", "Salut"],
-                correct: 0
-            },
-            {
-                question: "Quel est le mot français pour 'water'?",
-                answers: ["Pain", "Lait", "Vin", "Eau"],
-                correct: 3
-            }
+            { question: "Comment allez-vous?", answers: ["Je vais bien", "Au revoir", "Merci", "Bonjour"], correct: 0 },
+            { question: "Quelle est la capitale de la France?", answers: ["Lyon", "Marseille", "Paris", "Bordeaux"], correct: 2 },
+            { question: "Comment dit-on 'hello' en français?", answers: ["Au revoir", "Bonjour", "Merci", "S'il vous plaît"], correct: 1 },
+            { question: "Quelle couleur est le drapeau français?", answers: ["Rouge-Blanc-Bleu", "Bleu-Blanc-Rouge", "Blanc-Bleu-Rouge", "Rouge-Bleu-Blanc"], correct: 1 },
+            { question: "Quel est le mot français pour 'cat'?", answers: ["Chien", "Oiseau", "Chat", "Poisson"], correct: 2 },
+            { question: "Comment dit-on 'thank you' en français?", answers: ["S'il vous plaît", "Merci", "De rien", "Pardon"], correct: 1 },
+            { question: "Quel nombre vient après 'trois'?", answers: ["Cinq", "Deux", "Quatre", "Six"], correct: 2 },
+            { question: "Quelle est la couleur 'rouge' en anglais?", answers: ["Blue", "Green", "Yellow", "Red"], correct: 3 },
+            { question: "Comment dit-on 'goodbye' en français?", answers: ["Au revoir", "Bonjour", "Bonsoir", "Salut"], correct: 0 },
+            { question: "Quel est le mot français pour 'water'?", answers: ["Pain", "Lait", "Vin", "Eau"], correct: 3 }
         ];
 
         let currentQuestion = 0;
@@ -115,6 +76,7 @@
 
             const question = shuffledQuestions[currentQuestion];
             document.getElementById('question').textContent = question.question;
+            document.getElementById('question-counter').textContent = `Question ${currentQuestion + 1} of ${shuffledQuestions.length}`;
             const answersDiv = document.getElementById('answers');
             answersDiv.innerHTML = '';
             
@@ -141,9 +103,16 @@
                 if (timeLeft <= 0) {
                     clearInterval(timer);
                     buttons.forEach(button => button.disabled = true);
+                    showCorrectAnswer();
                     document.getElementById('next-btn').classList.remove('hidden');
                 }
             }, 1000);
+        }
+
+        function showCorrectAnswer() {
+            const correctIndex = shuffledQuestions[currentQuestion].correct;
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons[correctIndex].classList.add('correct');
         }
 
         function checkAnswer(selectedIndex) {
@@ -156,7 +125,7 @@
                 score++;
             } else {
                 buttons[selectedIndex].classList.add('incorrect');
-                buttons[shuffledQuestions[currentQuestion].correct].classList.add('correct');
+                showCorrectAnswer();
             }
             
             document.getElementById('next-btn').classList.remove('hidden');
@@ -192,7 +161,6 @@
             startQuiz();
         }
 
-        // Load last score from localStorage
         window.onload = function() {
             const lastScore = localStorage.getItem('lastQuizScore');
             if (lastScore) {
@@ -202,4 +170,3 @@
     </script>
 </body>
 </html>
-
