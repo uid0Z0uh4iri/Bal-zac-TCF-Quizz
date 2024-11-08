@@ -48,7 +48,7 @@
 
             startTimer();
         }
-
+        
         function startTimer() {
             let timeLeft = 10;
             const timerDisplay = document.getElementById('timer');
