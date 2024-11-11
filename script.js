@@ -121,56 +121,123 @@
             currentQuestion++;
             showQuestion();
         }
+
+        function createPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Add title
+            doc.setFontSize(20);
+            doc.text('Quiz Statistics Report', 20, 20);
+            
+            // Add general info
+            doc.setFontSize(12);
+            doc.text(`Final Score: ${score} out of ${questions.length}`, 20, 35);
+            doc.text(`Level: ${document.getElementById('level').textContent.split(': ')[1]}`, 20, 45);
+            
+            // Add summary statistics
+            doc.setFontSize(16);
+            doc.text('Summary Statistics', 20, 60);
+            doc.setFontSize(12);
+            const avgTime = (questionStats.reduce((acc, stat) => acc + stat.timeSpent, 0) / questionStats.length).toFixed(2);
+            const fastestTime = Math.min(...questionStats.map(stat => stat.timeSpent)).toFixed(2);
+            const slowestTime = Math.max(...questionStats.map(stat => stat.timeSpent)).toFixed(2);
+            
+            doc.text(`Average Time per Question: ${avgTime} seconds`, 20, 75);
+            doc.text(`Fastest Answer: ${fastestTime} seconds`, 20, 85);
+            doc.text(`Slowest Answer: ${slowestTime} seconds`, 20, 95);
+            
+            // Add detailed question analysis
+            doc.setFontSize(16);
+            doc.text('Question by Question Analysis', 20, 115);
+            
+            let yPosition = 130;
+            questionStats.forEach((stat, index) => {
+                // Check if we need a new page
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.setFontSize(14);
+                doc.text(`Question ${index + 1}`, 20, yPosition);
+                
+                doc.setFontSize(12);
+                const lines = doc.splitTextToSize(`Q: ${stat.question}`, 170);
+                doc.text(lines, 20, yPosition + 10);
+                
+                doc.text(`Your Answer: ${stat.userAnswer}`, 20, yPosition + 25);
+                doc.text(`Correct Answer: ${stat.correctAnswer}`, 20, yPosition + 35);
+                doc.text(`Time Spent: ${stat.timeSpent.toFixed(2)} seconds`, 20, yPosition + 45);
+                doc.text(`Result: ${stat.isCorrect ? 'Correct' : 'Incorrect'}`, 20, yPosition + 55);
+                
+                yPosition += 70;
+            });
+            
+            // Save PDF
+            doc.save('quiz-statistics.pdf');
+        }
+
+
          // Affichage dial results screen
          // Calculation dial niveau (A1-C2) based 3la score
          // Save dial score f localStorage
-function showResults() {
-    document.getElementById('quiz-screen').classList.add('hidden');
-    document.getElementById('results-screen').classList.remove('hidden');
-    
-    const finalScore = `Your score is ${score} out of ${questions.length}`;
-    document.getElementById('final-score').textContent = finalScore;
-    
-    let level = '';
-    if (score <= 2) level = 'A1';
-    else if (score <= 4) level = 'A2';
-    else if (score <= 6) level = 'B1';
-    else if (score <= 8) level = 'B2';
-    else if (score <= 9) level = 'C1';
-    else level = 'C2';
-    
-    document.getElementById('level').textContent = `Your level is: ${level}`;
-    
-    // Create detailed statistics section
-    const statsDiv = document.createElement('div');
-    statsDiv.className = 'statistics-section';
-    statsDiv.innerHTML = `
-        <h2>Detailed Statistics</h2>
-        <div class="stats-summary">
-            <p>Average Time per Question: ${(questionStats.reduce((acc, stat) => acc + stat.timeSpent, 0) / questionStats.length).toFixed(2)} seconds</p>
-            <p>Fastest Answer: ${Math.min(...questionStats.map(stat => stat.timeSpent)).toFixed(2)} seconds</p>
-            <p>Slowest Answer: ${Math.max(...questionStats.map(stat => stat.timeSpent)).toFixed(2)} seconds</p>
-        </div>
-        <h3>Question by Question Analysis</h3>
-        <div class="question-stats">
-            ${questionStats.map((stat, index) => `
-                <div class="question-stat ${stat.isCorrect ? 'correct-answer' : 'wrong-answer'}">
-                    <h4>Question ${index + 1}</h4>
-                    <p><strong>Question:</strong> ${stat.question}</p>
-                    <p><strong>Your Answer:</strong> ${stat.userAnswer}</p>
-                    <p><strong>Correct Answer:</strong> ${stat.correctAnswer}</p>
-                    <p><strong>Time Spent:</strong> ${stat.timeSpent.toFixed(2)} seconds</p>
-                    <p><strong>Result:</strong> ${stat.isCorrect ? 'Correct' : 'Incorrect'}</p>
+
+         
+         function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            
+            const finalScore = `Your score is ${score} out of ${questions.length}`;
+            document.getElementById('final-score').textContent = finalScore;
+            
+            let level = '';
+            if (score <= 2) level = 'A1';
+            else if (score <= 4) level = 'A2';
+            else if (score <= 6) level = 'B1';
+            else if (score <= 8) level = 'B2';
+            else if (score <= 9) level = 'C1';
+            else level = 'C2';
+            
+            document.getElementById('level').textContent = `Your level is: ${level}`;
+            
+            // Create detailed statistics section
+            const statsDiv = document.createElement('div');
+            statsDiv.className = 'statistics-section';
+            statsDiv.innerHTML = `
+                <h2>Detailed Statistics</h2>
+                <div class="stats-summary">
+                    <p>Average Time per Question: ${(questionStats.reduce((acc, stat) => acc + stat.timeSpent, 0) / questionStats.length).toFixed(2)} seconds</p>
+                    <p>Fastest Answer: ${Math.min(...questionStats.map(stat => stat.timeSpent)).toFixed(2)} seconds</p>
+                    <p>Slowest Answer: ${Math.max(...questionStats.map(stat => stat.timeSpent)).toFixed(2)} seconds</p>
                 </div>
-            `).join('')}
-        </div>
-    `;
-    
-    // Add stats to results screen
-    document.getElementById('results-screen').appendChild(statsDiv);
-    
-    localStorage.setItem('lastQuizScore', finalScore);
-}
+                <h3>Question by Question Analysis</h3>
+                <div class="question-stats">
+                    ${questionStats.map((stat, index) => `
+                        <div class="question-stat ${stat.isCorrect ? 'correct-answer' : 'wrong-answer'}">
+                            <h4>Question ${index + 1}</h4>
+                            <p><strong>Question:</strong> ${stat.question}</p>
+                            <p><strong>Your Answer:</strong> ${stat.userAnswer}</p>
+                            <p><strong>Correct Answer:</strong> ${stat.correctAnswer}</p>
+                            <p><strong>Time Spent:</strong> ${stat.timeSpent.toFixed(2)} seconds</p>
+                            <p><strong>Result:</strong> ${stat.isCorrect ? 'Correct' : 'Incorrect'}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            // Add download button
+            const downloadButton = document.createElement('button');
+            downloadButton.textContent = 'Download Statistics (PDF)';
+            downloadButton.className = 'download-btn';
+            downloadButton.onclick = createPDF;
+            statsDiv.appendChild(downloadButton);
+            
+            // Add stats to results screen
+            document.getElementById('results-screen').appendChild(statsDiv);
+            
+            localStorage.setItem('lastQuizScore', finalScore);
+        }
 
         function restartQuiz() {
             document.getElementById('results-screen').classList.add('hidden');
