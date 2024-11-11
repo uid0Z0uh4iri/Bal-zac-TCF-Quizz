@@ -19,23 +19,28 @@
         let timer;    // timer de question
         let shuffledQuestions;  // questions randomly
 
-        function startQuiz() {    // fonction pour commencer le quiz
+
+        let questionStats = [];
+        let currentQuestionStartTime;
+
+
+        function startQuiz() {
             score = 0;
             currentQuestion = 0;
-            shuffledQuestions = [...questions].sort(() => Math.random() - 0.5); // shuffle les questions
-            document.getElementById('start-screen').classList.add('hidden'); // cache le bouton de start
-            document.getElementById('quiz-screen').classList.remove('hidden'); // affiche le quiz
-            showQuestion();  // afficher la premiere question
+            questionStats = []; // Reset stats
+            shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            showQuestion();
         }
 
         function showQuestion() {
-            if (currentQuestion >= shuffledQuestions.length) {   //verificartion si le quiz est terminé
+            if (currentQuestion >= shuffledQuestions.length) {
                 showResults();
                 return;
             }
-
-            // Affichage des questions et reponses
-
+        
+            currentQuestionStartTime = Date.now(); // Track start time
             const question = shuffledQuestions[currentQuestion];
             document.getElementById('question').textContent = question.question;
             document.getElementById('question-counter').textContent = `Question ${currentQuestion + 1} of ${shuffledQuestions.length}`;
@@ -49,7 +54,7 @@
                 button.onclick = () => checkAnswer(index);
                 answersDiv.appendChild(button);
             });
-
+        
             startTimer();
         }
 
@@ -81,12 +86,25 @@
             // Verification wach jawb s7i7
            // Katbyen correct/incorrect answer
           // Katzid score ila kan jawb s7i7
-        function checkAnswer(selectedIndex) {
+          function checkAnswer(selectedIndex) {
             clearInterval(timer);
             const buttons = document.querySelectorAll('.answer-btn');
             buttons.forEach(button => button.disabled = true);
             
-            if (selectedIndex === shuffledQuestions[currentQuestion].correct) {
+            const question = shuffledQuestions[currentQuestion];
+            const isCorrect = selectedIndex === question.correct;
+            const timeSpent = (Date.now() - currentQuestionStartTime) / 1000; // Time in seconds
+            
+            // Save stats for this question
+            questionStats.push({
+                question: question.question,
+                userAnswer: question.answers[selectedIndex],
+                correctAnswer: question.answers[question.correct],
+                isCorrect: isCorrect,
+                timeSpent: timeSpent
+            });
+            
+            if (isCorrect) {
                 buttons[selectedIndex].classList.add('correct');
                 score++;
             } else {
@@ -97,6 +115,7 @@
             document.getElementById('next-btn').classList.remove('hidden');
         }
 
+
         function nextQuestion() {
             document.getElementById('next-btn').classList.add('hidden');
             currentQuestion++;
@@ -105,24 +124,53 @@
          // Affichage dial results screen
          // Calculation dial niveau (A1-C2) based 3la score
          // Save dial score f localStorage
-        function showResults() {
-            document.getElementById('quiz-screen').classList.add('hidden');
-            document.getElementById('results-screen').classList.remove('hidden');
-            
-            const finalScore = `Your score is ${score} out of ${questions.length}`;
-            document.getElementById('final-score').textContent = finalScore;
-            
-            let level = '';
-            if (score <= 2) level = 'A1';
-            else if (score <= 4) level = 'A2';
-            else if (score <= 6) level = 'B1';
-            else if (score <= 8) level = 'B2';
-            else if (score <= 9) level = 'C1';
-            else level = 'C2';
-            
-            document.getElementById('level').textContent = `Your level is: ${level}`;
-            localStorage.setItem('lastQuizScore', finalScore);
-        }
+function showResults() {
+    document.getElementById('quiz-screen').classList.add('hidden');
+    document.getElementById('results-screen').classList.remove('hidden');
+    
+    const finalScore = `Your score is ${score} out of ${questions.length}`;
+    document.getElementById('final-score').textContent = finalScore;
+    
+    let level = '';
+    if (score <= 2) level = 'A1';
+    else if (score <= 4) level = 'A2';
+    else if (score <= 6) level = 'B1';
+    else if (score <= 8) level = 'B2';
+    else if (score <= 9) level = 'C1';
+    else level = 'C2';
+    
+    document.getElementById('level').textContent = `Your level is: ${level}`;
+    
+    // Create detailed statistics section
+    const statsDiv = document.createElement('div');
+    statsDiv.className = 'statistics-section';
+    statsDiv.innerHTML = `
+        <h2>Detailed Statistics</h2>
+        <div class="stats-summary">
+            <p>Average Time per Question: ${(questionStats.reduce((acc, stat) => acc + stat.timeSpent, 0) / questionStats.length).toFixed(2)} seconds</p>
+            <p>Fastest Answer: ${Math.min(...questionStats.map(stat => stat.timeSpent)).toFixed(2)} seconds</p>
+            <p>Slowest Answer: ${Math.max(...questionStats.map(stat => stat.timeSpent)).toFixed(2)} seconds</p>
+        </div>
+        <h3>Question by Question Analysis</h3>
+        <div class="question-stats">
+            ${questionStats.map((stat, index) => `
+                <div class="question-stat ${stat.isCorrect ? 'correct-answer' : 'wrong-answer'}">
+                    <h4>Question ${index + 1}</h4>
+                    <p><strong>Question:</strong> ${stat.question}</p>
+                    <p><strong>Your Answer:</strong> ${stat.userAnswer}</p>
+                    <p><strong>Correct Answer:</strong> ${stat.correctAnswer}</p>
+                    <p><strong>Time Spent:</strong> ${stat.timeSpent.toFixed(2)} seconds</p>
+                    <p><strong>Result:</strong> ${stat.isCorrect ? 'Correct' : 'Incorrect'}</p>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    // Add stats to results screen
+    document.getElementById('results-screen').appendChild(statsDiv);
+    
+    localStorage.setItem('lastQuizScore', finalScore);
+}
 
         function restartQuiz() {
             document.getElementById('results-screen').classList.add('hidden');
