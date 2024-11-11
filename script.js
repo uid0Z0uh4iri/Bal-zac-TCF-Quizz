@@ -1,4 +1,6 @@
 
+
+      // Array pour les questions
         const questions = [
             { question: "Comment allez-vous?", answers: ["Je vais bien", "Au revoir", "Merci", "Bonjour"], correct: 0 },
             { question: "Quelle est la capitale de la France?", answers: ["Lyon", "Marseille", "Paris", "Bordeaux"], correct: 2 },
@@ -12,25 +14,27 @@
             { question: "Quel est le mot français pour 'water'?", answers: ["Pain", "Lait", "Vin", "Eau"], correct: 3 }
         ];
 
-        let currentQuestion = 0;
-        let score = 0;
-        let timer;
-        let shuffledQuestions;
+        let currentQuestion = 0;   // nombre dial current question
+        let score = 0;    // current score
+        let timer;    // timer de question
+        let shuffledQuestions;  // questions randomly
 
-        function startQuiz() {
+        function startQuiz() {    // fonction pour commencer le quiz
             score = 0;
             currentQuestion = 0;
-            shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
-            document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('quiz-screen').classList.remove('hidden');
-            showQuestion();
+            shuffledQuestions = [...questions].sort(() => Math.random() - 0.5); // shuffle les questions
+            document.getElementById('start-screen').classList.add('hidden'); // cache le bouton de start
+            document.getElementById('quiz-screen').classList.remove('hidden'); // affiche le quiz
+            showQuestion();  // afficher la premiere question
         }
 
         function showQuestion() {
-            if (currentQuestion >= shuffledQuestions.length) {
+            if (currentQuestion >= shuffledQuestions.length) {   //verificartion si le quiz est terminé
                 showResults();
                 return;
             }
+
+            // Affichage des questions et reponses
 
             const question = shuffledQuestions[currentQuestion];
             document.getElementById('question').textContent = question.question;
@@ -48,9 +52,9 @@
 
             startTimer();
         }
-        
+
         function startTimer() {
-            let timeLeft = 10;
+            let timeLeft = 10;   // timer de 10 seconds
             const timerDisplay = document.getElementById('timer');
             const buttons = document.querySelectorAll('.answer-btn');
             clearInterval(timer);
@@ -60,7 +64,7 @@
                 timerDisplay.textContent = `Time remaining: ${timeLeft}s`;
                 if (timeLeft <= 0) {
                     clearInterval(timer);
-                    buttons.forEach(button => button.disabled = true);
+                    buttons.forEach(button => button.disabled = true);  
                     showCorrectAnswer();
                     document.getElementById('next-btn').classList.remove('hidden');
                 }
@@ -73,6 +77,10 @@
             buttons[correctIndex].classList.add('correct');
         }
 
+
+            // Verification wach jawb s7i7
+           // Katbyen correct/incorrect answer
+          // Katzid score ila kan jawb s7i7
         function checkAnswer(selectedIndex) {
             clearInterval(timer);
             const buttons = document.querySelectorAll('.answer-btn');
@@ -94,7 +102,9 @@
             currentQuestion++;
             showQuestion();
         }
-
+         // Affichage dial results screen
+         // Calculation dial niveau (A1-C2) based 3la score
+         // Save dial score f localStorage
         function showResults() {
             document.getElementById('quiz-screen').classList.add('hidden');
             document.getElementById('results-screen').classList.remove('hidden');
@@ -120,7 +130,7 @@
         }
 
         window.onload = function() {
-            const lastScore = localStorage.getItem('lastQuizScore');
+            const lastScore = localStorage.getItem('lastQuizScore');   //localstorage du dernier quizz.
             if (lastScore) {
                 document.getElementById('last-score').textContent = `Last score: ${lastScore}`;
             }

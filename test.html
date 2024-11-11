@@ -1,0 +1,43 @@
+import React from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+
+const LinkedInShowcaseProject = () => {
+  return (
+    <Card className="w-full max-w-4xl">
+      <CardHeader>
+        <CardTitle>LinkedIn Showcase Project</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <p>
+            This is a showcase project built with HTML, CSS, and JavaScript, designed to showcase your skills and
+            experience on your LinkedIn profile.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h3 className="text-lg font-medium">Features:</h3>
+              <ul className="list-disc pl-4 space-y-2">
+                <li>Modern, responsive design</li>
+                <li>Interactive elements using JavaScript</li>
+                <li>Smooth scrolling and animations</li>
+                <li>Showcases your best work and achievements</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium">Live Demo:</h3>
+              <div className="flex justify-center">
+                <Button as={Link} to="/showcase" className="bg-blue-500 hover:bg-blue-600 text-white">
+                  View Project
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default LinkedInShowcaseProject;
